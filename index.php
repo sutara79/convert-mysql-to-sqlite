@@ -23,6 +23,7 @@
 		<p>phpMyAdminや端末でダンプしたMySQLのSQLファイルを、SQLiteでインポートできるように加工します。</p>
 		<p>
 			重要なデータベースはWeb上で変換せず、ソースコードをダウンロードして、ローカル環境でPHPを動かして使ってください。<br>
+			<a href="https://github.com/SutaraLumpur/convert_mysql_to_sqlite/zipball/master">GitHubからダウンロード</a>
 		</p>
 		<form action="generate.php" method="POST" enctype="multipart/form-data">
 			<input type="file" name="upfile">
@@ -33,7 +34,7 @@
 
 		<address>
 			Author : sutara_lumpur /
-			<a href="http://d.hatena.ne.jp/sutara_lumpur/">Blog</a> /
+			<a href="http://d.hatena.ne.jp/sutara_lumpur/20120714/1342269933">Blog</a> /
 			<a href="http://twitter.com/sutara_lumpur">Twitter</a> /
 			<img src="mail_image.png" alt="mail address">
 		</address>
