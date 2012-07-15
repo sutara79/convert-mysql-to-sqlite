@@ -51,7 +51,8 @@
 						//INSERT文の処理
 						//--------------------------------------------
 						//(phpMyAdmin)
-						if (preg_match('/^(INSERT INTO \`([^\`]+)\` )\([^\)]+\) VALUES$/i', $line, $matches)) {
+						//if (preg_match('/^(INSERT INTO \`([^\`]+)\` )\([^\)]+\) VALUES$/i', $line, $matches)) {
+						if (preg_match('/^(INSERT INTO \`([^\`]+)\` )[\s\S]*VALUES$/i', $line, $matches)) {
 							echo "({$matches[2]}) INSERT文を変換します。<br>";
 							$i++;
 							$line = fgets($fp1);
@@ -111,6 +112,8 @@
 					
 					echo 'ファイルの変換を完了しました。<br>';
 					//変換前のファイルを削除
+					fclose($fp1);
+					fclose($fp2);
 					unlink($upfile);
 					echo 'ファイルを返信します。<br>';
 
