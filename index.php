@@ -17,7 +17,7 @@
 	</head>
 	<body>
 		<h1>Convert MySQL to SQLite</h1>
-		<p>Last update : 2012-07-14</p>
+		<p>Last update : 2012-07-17</p>
 		<p>容量制限 : 10MB以内</p>
 		<p>ローカルで実行する際の要件 : PHP5, JavaScript</p>
 		<p>phpMyAdminや端末でダンプしたMySQLのSQLファイルを、SQLiteでインポートできるように加工します。</p>
