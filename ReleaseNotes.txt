@@ -1,3 +1,11 @@
+v2.0 (2012-07-20)
+	(English)
+	* You can use the escaped "back-quote" and the escaped "new-line" in database.
+	
+	(Japanese)
+	* エスケープされたバッククオート、改行文字に対応しました。
+	
+	
 v1.1 (2012-07-17)
 	(English)
 	* Stability of operation was improved.
