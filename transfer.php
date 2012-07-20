@@ -2,11 +2,20 @@
 	//********************************************
 	//置換のコールバック関数
 	//********************************************
-	function my_callback($matches) {
+	function callback_create($matches) {
 		if (isset($matches[3]) && isset($matches[4])) {
 			return $matches[4];
 		} elseif (isset($matches[2]) && isset($matches[1])) {
 			return $matches[1].'integer';
+		}
+	}
+	function callback_backquote($matches) {
+		if (isset($matches[2])) {
+			//SQLite用に、バッククオートをダブルクオートに変換する。
+			return '"';
+		} elseif (isset($matches[1])) {
+			//クオートで囲まれた中にあるバッククオートは変換しない。
+			return $matches[1];
 		}
 	}
 	//********************************************
@@ -14,7 +23,11 @@
 	//********************************************
 	function my_fwrite($fp, $line) {
 		//バッククオートをダブルクオートに
-		$line = preg_replace('/(?<!\\\\)\`/', '"', $line);
+		$line = preg_replace_callback('/(\'(?:(?:(?!\\\\).)?(?:(?:\\\\\\\\)*\\\\)\'|[^\'])*\')|(`)/us', 'callback_backquote', $line);
+
+		//'\n'を改行に変換する
+		$line = preg_replace('/((?:(?!\\\\).)?(?:\\\\\\\\)*)(\\\\n)/us', '\1'."\n", $line);
+
 		fwrite($fp, $line);
 	}
 	//********************************************
@@ -34,11 +47,11 @@
 		//INSERT文の処理
 		//--------------------------------------------
 		//(phpMyAdmin)
-		if (preg_match('/^(INSERT INTO \`([^\`]+)\` )[\s\S]*VALUES$/i', $line, $matches)) {
+		if (preg_match('/^(INSERT INTO \`[^\`]+\` )[\s\S]*VALUES$/ui', $line, $matches)) {
 			$i++;
 			$line = fgets($fp1);
 			
-			while (preg_match('/^(\([\s\S]+\))[,;]$/', $line, $matches2)) {
+			while (preg_match('/^([\s\S]+)[,;]$/u', $line, $matches2)) {
 				$line = $matches[1].'VALUES'.$matches2[1].";\n";
 				my_fwrite($fp2, $line);
 				
@@ -51,19 +64,19 @@
 			//INSERT文が終わったら、INSERT文以外の変換作業へ移る。
 		}
 		//端末その他
-		elseif (preg_match('/^(INSERT INTO \`([^\`]+)\` VALUES\s?)([\s\S]*\);)$/i', $line, $matches)) {
-			while (preg_match('/^(\((?:(?:(?:\'[^\']*\')|[0-9]+),?)*\)),([\s\S]*)/', $matches[3], $matches2)) {
-				$matches[3] = $matches2[2];
+		elseif (preg_match('/^(INSERT INTO \`[^\`]+\` VALUES\s?)([\s\S]*\);)$/ui', $line, $matches)) {
+			while (preg_match_all('/^(\((?:(?:\'(?:(?:(?!\\\\).)?(?:(?:\\\\\\\\)*\\\\)\'|[^\'])*\'|[0-9]+|NULL),? ?)+\)), ?([\s\S]*)/ui', $matches[2], $matches2)) {
+				$matches[2] = $matches2[2];
 				$line = $matches[1].$matches2[1].";\n";
 				my_fwrite($fp2, $line);
 			}
-			$line = $matches[1].$matches[3]."\n";
+			$line = $matches[1].$matches[2]."\n";
 			my_fwrite($fp2, $line);
 		}
 		//--------------------------------------------
 		//CREATE文の処理
 		//--------------------------------------------
-		if (preg_match('/^CREATE TABLE[\s\S]*\`([^\`]+)\`/i', $line, $matches)) {
+		if (preg_match('/^CREATE TABLE[\s\S]*\`[^\`]+\`/ui', $line, $matches)) {
 			my_fwrite($fp2, $line);
 			
 			$i++;
@@ -72,7 +85,7 @@
 
 			while (!preg_match('/^\) ENGINE=/i', $line)) {
 				//int系をintegerへ、AUTO_INCREMENTを削除する
-				$line = preg_replace_callback('/^(\s*\`.+\`\s*)(int|tinyint|samllint|mediumint|bigint)(?:\(.+\))?|(AUTO_INCREMENT)(,?)$/i', 'my_callback', $line);
+				$line = preg_replace_callback('/^(\s*`[^`]+`\s*)(int|tinyint|samllint|mediumint|bigint)(?:\([^\)]+\))?|(AUTO_INCREMENT)(,?)$/ui', 'callback_create', $line);
 				my_fwrite($fp2, $line);
 
 				$i++;
