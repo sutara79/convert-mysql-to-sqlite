@@ -1,8 +1,8 @@
 # Infomation
 	Type       : PHP program
 	Name       : Convert MySQL to SQLite
-	Version    : 2.0
-	Update     : 2012-07-20
+	Version    : 2.1
+	Update     : 2012-07-26
 	Author     : Yuusaku Miyazaki (宮崎 雄策) (toumin.m7@gmail.com)
 	Author-URI : http://d.hatena.ne.jp/sutara_lumpur/20120714/1342269933
 	Demo       : http://www.usamimi.info/~sutara/sample/convert_mysql_to_sqlite/

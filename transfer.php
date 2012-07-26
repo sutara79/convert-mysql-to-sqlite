@@ -3,8 +3,10 @@
 	//置換のコールバック関数
 	//********************************************
 	function callback_create($matches) {
-		if (isset($matches[3]) && isset($matches[4])) {
-			return $matches[4];
+		if (isset($matches[4])) {
+			return '';
+		} elseif (isset($matches[3])) {
+			return '';
 		} elseif (isset($matches[2]) && isset($matches[1])) {
 			return $matches[1].'integer';
 		}
@@ -51,7 +53,7 @@
 			$i++;
 			$line = fgets($fp1);
 			
-			while (preg_match('/^([\s\S]+)[,;]$/u', $line, $matches2)) {
+			while (preg_match('/^([\s\S]+),$/u', $line, $matches2)) {
 				$line = $matches[1].'VALUES'.$matches2[1].";\n";
 				my_fwrite($fp2, $line);
 				
@@ -60,6 +62,10 @@
 				//このため、CREATE文よりも先にこの処理を記述しなければならない。
 				$i++;
 				$line = fgets($fp1);
+			}
+			if (preg_match('/;$/u', $line)) {
+				$line = $matches[1].'VALUES'.$line."\n";
+				my_fwrite($fp2, $line);
 			}
 			//INSERT文が終わったら、INSERT文以外の変換作業へ移る。
 		}
@@ -76,23 +82,29 @@
 		//--------------------------------------------
 		//CREATE文の処理
 		//--------------------------------------------
-		if (preg_match('/^CREATE TABLE[\s\S]*\`[^\`]+\`/ui', $line, $matches)) {
-			my_fwrite($fp2, $line);
+		if (preg_match('/^CREATE TABLE[\s\S]*(\`[^\`]+\`)/ui', $line, $matches)) {
+			my_fwrite($fp2, "CREATE TABLE {$matches[1]} (\n");
 			
 			$i++;
 			$line = fgets($fp1);
 			
-
+			$j = 0;
 			while (!preg_match('/^\) ENGINE=/i', $line)) {
-				//int系をintegerへ、AUTO_INCREMENTを削除する
-				$line = preg_replace_callback('/^(\s*`[^`]+`\s*)(int|tinyint|samllint|mediumint|bigint)(?:\([^\)]+\))?|(AUTO_INCREMENT)(,?)$/ui', 'callback_create', $line);
-				my_fwrite($fp2, $line);
 
+				//int系をintegerへ、AUTO_INCREMENTを削除する
+				if (!preg_match('/^\s*UNIQUE KEY/ui', $line)) {
+					//以下の置換で行末のカンマを削除している。CREATE文が続くなら、カンマを復活させる。
+					if ($j > 0) fwrite($fp2, ",\n");
+					$j++;
+
+					$line = preg_replace_callback('/^(\s*`[^`]+`\s*)(int|tinyint|samllint|mediumint|bigint)(?:\([^\)]+\))?|(AUTO_INCREMENT),?\\n$|(,\\n)$/ui', 'callback_create', $line);
+					my_fwrite($fp2, $line);
+				}
 				$i++;
 				$line = fgets($fp1);
 			}
 			//(phpMyAdmin, 端末) ") ENGINE=" は、ENGINE以降を削除
-			fwrite($fp2, ");\n");
+			fwrite($fp2, "\n);\n");
 			$flag_create_table = false;
 		}
 		$return['pos']  = ftell($fp1);
