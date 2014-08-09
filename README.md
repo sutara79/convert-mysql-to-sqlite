@@ -1,10 +1,11 @@
 # convert-mysql-to-sqlite
+Convert a MySQL dump file to a sql file for SQLite3 using PHP.
 
 ## Demo
 http://www.usamimi.info/~sutara/sample/convert-mysql-to-sqlite/
 
 **DO NOT** upload a important file.  
-If you want to convert a important file, please download this source code and execute in your local environment.
+If you want to convert a important file, please download this source code and execute in your local PHP environment.
 
 ## Usage in local
 Please regulate the following php.ini directives.

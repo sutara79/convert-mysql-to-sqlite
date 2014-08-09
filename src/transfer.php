@@ -1,5 +1,9 @@
 <?php
 /**
+ * 実際の変換処理
+ */
+
+/**
  * 置換のコールバック関数
  */
 function callback_create($matches) {
